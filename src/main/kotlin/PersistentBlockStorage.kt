@@ -5,18 +5,35 @@ import java.io.*
 import java.util.*
 
 
+/**
+ * Kotlin utility class used for persistent storing of [Serializable] objects inside blocks
+ */
 class PersistentBlockStorage : JavaPlugin() {
 
-
-
     companion object {
-        private val data = mutableMapOf<Location, MutableMap<String, java.io.Serializable>>()
 
-        fun storeValue(location : Location, key : String, value : java.io.Serializable) {
+        //Stores all of the data within a mutable map
+        private val data = mutableMapOf<Location, MutableMap<String, Serializable>>()
+
+        /**
+         * Stores a value into a location using a key-value based system
+         *
+         * @param location The block the location is at
+         * @param key The key for the item to be stored under
+         * @param value The object that is going to be stored/serialized
+         */
+        fun storeValue(location : Location, key : String, value : Serializable) {
             data.compute(location) {_, v -> v ?: mutableMapOf()}
             data.getValue(location)[key] = value
         }
 
+        /**
+         * Retrieves a value from location using a key-value based system
+         *
+         * @param location The block the location is at
+         * @param key The key the data is being stored under
+         * @return The value stored in that position
+         */
         fun getValue(location : Location, key : String): Any {
             return data.getValue(location).getValue(key)
         }
@@ -36,8 +53,12 @@ class PersistentBlockStorage : JavaPlugin() {
         }
 
 
-        PersistentBlockStorage.storeValue(Location(Bukkit.getWorld("world"), 0.0, 0.0, 0.0), "someKey", BlockData())
+        //EXAMPLE CASE USAGE
 
+        //Stores the value 33 in key "someKey" at location ("world", 0, 0, 0)
+        PersistentBlockStorage.storeValue(Location(Bukkit.getWorld("world"), 0.0, 0.0, 0.0), "someKey", 33)
+
+        //Retrieves an integer from key "someKey" at location ("world", 0, 0, 0)
         var e : Int = PersistentBlockStorage.getValue(Location(Bukkit.getWorld("world"), 0.0, 0.0, 0.0), "someKey") as Int
     }
 
@@ -79,6 +100,5 @@ class PersistentBlockStorage : JavaPlugin() {
         val arr = s.split(":")
         return Location(Bukkit.getWorld(arr[0]), arr[1].toDouble(), arr[2].toDouble(), arr[3].toDouble())
     }
-
 
 }
