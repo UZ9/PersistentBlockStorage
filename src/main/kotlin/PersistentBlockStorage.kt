@@ -1,6 +1,8 @@
 import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.plugin.java.JavaPlugin
 import java.io.*
 import java.util.*
 
@@ -8,11 +10,20 @@ import java.util.*
 /**
  * Kotlin utility class used for persistent storing of [Serializable] objects inside blocks
  */
-class PersistentBlockStorage(private var config: FileConfiguration, private var file: File) {
+class PersistentBlockStorage(plugin : JavaPlugin, fileName : String) {
 
-
+    private var config: FileConfiguration
+    private var file: File = File(plugin.dataFolder, fileName)
     //Stores all of the data within a mutable map
     private val data = mutableMapOf<Location, MutableMap<String, Serializable>>()
+
+
+    init {
+        config = YamlConfiguration.loadConfiguration(file)
+
+        load()
+    }
+
 
     /**
      * Stores a value into a location using a key-value based system
@@ -41,7 +52,7 @@ class PersistentBlockStorage(private var config: FileConfiguration, private var 
     /**
      * Loads all of the block data
      */
-    fun load() {
+    private fun load() {
         config.getConfigurationSection("data").getKeys(false).forEach { loc ->
             val deserializedLoc = deserializeLocation(loc)
             val mapToAdd = mutableMapOf<String, Serializable>()
