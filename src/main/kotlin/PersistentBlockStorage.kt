@@ -66,6 +66,9 @@ class PersistentBlockStorage(plugin : JavaPlugin, fileName : String) {
 
     }
 
+    /**
+     * Saves all of the data stored in blocks. Should be called on disable and at autosave intervals.
+     */
     fun save() {
         data.forEach { block ->
             val serializedLoc = serializeLocation(block.key)
@@ -80,6 +83,9 @@ class PersistentBlockStorage(plugin : JavaPlugin, fileName : String) {
         config.save(file)
     }
 
+    /**
+     * Uses Java's standard [Serializable] methods to serialize an object into a [String].
+     */
     private fun serializeObject(o: Serializable): String {
         val baos = ByteArrayOutputStream();
         val oos = ObjectOutputStream(baos);
@@ -88,6 +94,9 @@ class PersistentBlockStorage(plugin : JavaPlugin, fileName : String) {
         return Base64.getEncoder().encodeToString(baos.toByteArray())
     }
 
+    /**
+     * Uses Java's standard [Serializable] methods to deserialize an object into an [Object]
+     */
     private fun deserializeObject(s: String): Any {
         val data = Base64.getDecoder().decode(s);
         val ois = ObjectInputStream(ByteArrayInputStream(data))
@@ -96,10 +105,22 @@ class PersistentBlockStorage(plugin : JavaPlugin, fileName : String) {
         return o
     }
 
+    /**
+     * Serializes a [Location] into a string in the format:
+     * WorldName:X:Y:Z
+     * @param l A [Location] to be serialized
+     * @return The serialized location 
+     */
     private fun serializeLocation(l: Location): String {
         return "${l.world.name}${l.x}:${l.y}:${l.z}"
     }
 
+    /**
+     * Deserializes a [Location] in the form of
+     * WorldName:X:Y:Z
+     * @param s The serialized location
+     * @return The deserialized location
+     */
     private fun deserializeLocation(s: String): Location {
         val arr = s.split(":")
         return Location(Bukkit.getWorld(arr[0]), arr[1].toDouble(), arr[2].toDouble(), arr[3].toDouble())
